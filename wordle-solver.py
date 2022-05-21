@@ -95,31 +95,43 @@ best_word_array = np.array([np.array([c for c in w]) for w in best_word_list])
 
 def use_clues(word, result):
     # Special case: Same letter is green and grey
-    green = set()
+    # Have to keep track of position of green chars
+    green_idx = defaultdict(list)
     grey = set()
     for i, r in enumerate(result):
         char = word[i]
         if r == 'grey':
             grey.add(char)
         elif r == 'green':
-            green.add(char)
-    green_and_grey = green.intersection(grey)
+            green_idx[char].append(i)
+    green_and_grey = set(green_idx.keys()).intersection(grey)
     for i, r in enumerate(result):
         char = word[i]
-        if r == 'grey' and char not in green_and_grey:
-            for pos in a:
-                try:
-                    pos.remove(char)
-                except:
-                    continue
+        if r == 'green':
+            a[i] = set([char])
         elif r == 'yellow':
             try:
                 a[i].remove(char)
             except:
                 continue
             b.add(char)
-        elif r == 'green':
-            a[i] = set([char])
+        elif r == 'grey':
+            if char in green_and_grey:
+                # Remove this option from all but the green positions
+                for i, pos in enumerate(a):
+                    if i in green_idx[char]:
+                        continue
+                    try:
+                        pos.remove(char)
+                    except:
+                        continue
+            else:
+                # Remove from all positions
+                for pos in a:
+                    try:
+                        pos.remove(char)
+                    except:
+                        continue
 
 # Find all allowable words matching the constraints
 def find_ok_words(a, b):
