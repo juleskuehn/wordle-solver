@@ -3,6 +3,12 @@ import numpy as np
 import string
 from collections import defaultdict
 import math
+import argparse
+
+p = argparse.ArgumentParser()
+p.add_argument('--verbose', help='verbose')
+args = p.parse_args()
+verbose = True
 
 print('Preparing vocabulary...')
 
@@ -169,6 +175,60 @@ def find_solution(a, b):
     # Get the most common word in ok_words
     ok_words_sorted = words[words['word'].isin(ok_words)]
     return ok_words_sorted['word'].values[0]
+
+def find_clues_solutions(a, b, guess_num, verbose=False):
+    ok_words = find_ok_words(a, b)
+    
+    print()
+    print(len(ok_words), 'valid words.')
+    
+    # Get the most common word in ok_words
+    most_common_words = words[words['word'].isin(ok_words)]
+    most_common_words.index = most_common_words['word']
+    most_common_words = most_common_words[['freq']]
+    most_common_words.columns = ['Word Frequency']
+    most_common_words.index.name = None
+        
+    best_info_words = best_words.loc[ok_words][['avg']]
+    best_info_words.columns = ['Information Gain']
+        
+    best_of_both = best_info_words.join(most_common_words)
+    
+#     if guess_num < 2:
+#         print('\nRecommended word (best information gain):')
+#         print(best_info_words.index[0])
+#     elif guess_num < 5:
+#         print('\nRecommended word (best combination of information gain and word frequency):')
+#         print(best_of_both.index[0])
+#     else:
+#         print('\nRecommended word (most common word matching constraints):')
+#         print(most_common_words.index[0])
+
+    # New way: take a weighted average of the rank of each
+    best_of_both['word'] = best_of_both.index
+    best_of_both = best_of_both.sort_values(['Information Gain']).reset_index().drop(['index'],axis=1)
+    best_of_both['info_idx'] = best_of_both.index
+    best_of_both = best_of_both.sort_values(['Word Frequency']).reset_index().drop(['index'],axis=1)
+    best_of_both['freq_idx'] = best_of_both.index
+    best_of_both.index = best_of_both['word']
+
+    freq_weight = 0.2 * guess_num
+    info_weight = 1 - freq_weight
+    
+    best_of_both['Combined Score'] = best_of_both['info_idx']*info_weight + best_of_both['freq_idx']*freq_weight
+    best_of_both = best_of_both.sort_values(['Combined Score'], ascending=False)
+    
+    if verbose == True:
+        print('\nFrequent letters in common positions):')
+        print(best_info_words.head())
+        print('\nMost common words:')
+        print(most_common_words.head())
+        print(f'\nWeighted combination (w_info={info_weight}, w_freq={freq_weight}):')
+        print(best_of_both[['Combined Score', 'Information Gain', 'Word Frequency']].head(5))
+        
+    print('\nRecommended word:')
+    print(best_of_both.index[0])
+    print()
     
 # Shorthands to make entering results easier
 sh = ['grey', 'yellow', 'green']
@@ -180,20 +240,28 @@ while True:
     b = set()
     
     quit = False
-
-    for i in range(6):
-        word = input(f'Guess {i+1} (or type "exit", "restart"): ')
+    print('\n=============\n')
+    print('\nWORDLE SOLVER')
+    find_clues_solutions(a, b, 0, verbose=verbose)
+    print()
+    for i in range(1, 6):
+        word = input(f'Guess {i} (or type "exit", "restart"): ')
         if word == 'restart':
             break
         elif word == 'exit':
             quit = True
             break
-        result = input('Result? (0=grey, 1=yellow, 2=green:\n')
+        result = input('Result? (0=grey, 1=yellow, 2=green): ')
         result = [sh[int(s)] for s in result]
         use_clues(word, result)
-        print('Best solution word is:', find_solution(a, b))
-        print('Best clue word is:', find_clue(a,b))
-        print('========\n')
+#         print('Best solution word is:', find_solution(a, b))
+#         print('Best clue word is:', find_clue(a,b))
+        try:
+            find_clues_solutions(a, b, i, verbose=verbose)
+        except:
+            print('Impossible! Restarting.')
+            break
+        print('')
         
     if quit:
         break
