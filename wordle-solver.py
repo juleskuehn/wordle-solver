@@ -6,9 +6,10 @@ import math
 import argparse
 
 p = argparse.ArgumentParser()
-p.add_argument('--verbose', help='verbose')
+p.add_argument('-v', action='store_true')
+p.add_argument('-a', action='store_true')
 args = p.parse_args()
-verbose = True
+verbose = args.v
 
 print('Preparing vocabulary...')
 
@@ -29,10 +30,13 @@ words = words[words['word'].isin(set(allowed_words[0]))]
 
 # Add the other allowed words but with count and freq 0
 counted_words = set(words['word'])
+new_rows = []
 for w in allowed_words[0]:
     if w not in counted_words:
         new_row = {'word': w, 'count':0, 'freq':0}
-        words = words.append(new_row, ignore_index=True)
+        new_rows.append(new_row)
+
+words = words.append(pd.DataFrame(new_rows))
         
 # Letter frequency
 letter_freq = defaultdict(int)
@@ -229,6 +233,7 @@ def find_clues_solutions(a, b, guess_num, verbose=False):
     print('\nRecommended word:')
     print(best_of_both.index[0])
     print()
+    return best_of_both.index[0]
     
 # Shorthands to make entering results easier
 sh = ['grey', 'yellow', 'green']
@@ -242,10 +247,13 @@ while True:
     quit = False
     print('\n=============\n')
     print('\nWORDLE SOLVER')
-    find_clues_solutions(a, b, 0, verbose=verbose)
+    word = find_clues_solutions(a, b, 0, verbose=verbose)
     print()
-    for i in range(1, 6):
-        word = input(f'Guess {i} (or type "exit", "restart"): ')
+    for i in range(1, 7):
+        if not args.a:
+            word = input(f'Guess {i} (or type "exit", "restart"): ')
+        else:
+            print(f"Enter the word ({word}) in Wordle now.")
         if word == 'restart':
             break
         elif word == 'exit':
@@ -257,7 +265,7 @@ while True:
 #         print('Best solution word is:', find_solution(a, b))
 #         print('Best clue word is:', find_clue(a,b))
         try:
-            find_clues_solutions(a, b, i, verbose=verbose)
+            word = find_clues_solutions(a, b, i, verbose=verbose)
         except:
             print('Impossible! Restarting.')
             break
