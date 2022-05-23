@@ -4,12 +4,16 @@ A logic-based [Wordle](https://www.nytimes.com/games/wordle/index.html) solver b
 
 For more information see `wordle-explore.ipynb`.
 
-## Online usage
+## Usage
 Try it in-browser using the link below:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/juleskuehn/wordle-solver/HEAD)
 
-Open `wordle-explore.ipynb` then click the play button.
+Open `wordle-explore.ipynb` then select Run > Run All Cells from the menu. This will display recommended words.
+
+Open Wordle in a new browser window. Type your guess into Wordle and the solver. Then, type the result from Wordle into the solver.
+
+New recommended words will be displayed.
 
 ## CLI usage
 * `pip install pandas numpy`
