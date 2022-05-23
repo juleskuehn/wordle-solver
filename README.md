@@ -5,7 +5,7 @@ A logic-based [Wordle](https://www.nytimes.com/games/wordle/index.html) solver b
 For more information see `wordle-explore.ipynb`.
 
 ## Online usage
-Try it in your browser using the link below:
+Try it in-browser using the link below:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/juleskuehn/wordle-solver/HEAD)
 
@@ -17,4 +17,5 @@ Open `wordle-explore.ipynb` then click the play button.
  
 ### Flags
 `-a`: Auto mode. Assumes you always accept the suggestion.
+
 `-v`: Verbose. Shows top 5 guess options and their scores.
