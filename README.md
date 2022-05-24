@@ -2,7 +2,7 @@
 
 A logic-based [Wordle](https://www.nytimes.com/games/wordle/index.html) solver based on my intuition about what makes a "good" guess.
 
-For more information see `wordle-explore.ipynb`.
+For more information see [wordle-explore.ipynb](https://github.com/juleskuehn/wordle-solver/blob/main/wordle-explore.ipynb) (or open it interactively below).
 
 ## Usage
 Try it in-browser using the link below:
